@@ -3,12 +3,12 @@ pipeline {
     tools {
         maven 'Maven'
     }
-    parameters { 
-        choice(name: 'EKS_AWS_REGION', description: 'Provide AWS Region', choices: ['us-east-1', 'us-east-2', 'us-west-2', 'ap-east-1', 'ap-south-1', 'ap-northeast-2', 'ap-southeast-1', 'ap-southeast-2', 'ap-northeast-1', 'ca-central-1', 'eu-central-1', 'eu-west-1', 'eu-west-2', 'eu-west-3', 'eu-north-1', 'me-south-1', 'sa-east-1'])
-        string(name: "EKS_CLUSTER_NAME", defaultValue: "", description: "Provide The Name Of Cluster")
-        choice(name: 'EKS_NODE_TYPE', description: 'Provide Node Type', choices: ['t2.medium', 't2.micro', 't2.small'])
-        choice(name: 'EKS_NODE_COUNT', description: 'Provide The Node Count', choices: ['1', '2', '3'])
-    }
+    // parameters { 
+    //     choice(name: 'EKS_AWS_REGION', description: 'Provide AWS Region', choices: ['us-east-1', 'us-east-2', 'us-west-2', 'ap-east-1', 'ap-south-1', 'ap-northeast-2', 'ap-southeast-1', 'ap-southeast-2', 'ap-northeast-1', 'ca-central-1', 'eu-central-1', 'eu-west-1', 'eu-west-2', 'eu-west-3', 'eu-north-1', 'me-south-1', 'sa-east-1'])
+    //     string(name: "EKS_CLUSTER_NAME", defaultValue: "", description: "Provide The Name Of Cluster")
+    //     choice(name: 'EKS_NODE_TYPE', description: 'Provide Node Type', choices: ['t2.medium', 't2.micro', 't2.small'])
+    //     choice(name: 'EKS_NODE_COUNT', description: 'Provide The Node Count', choices: ['1', '2', '3'])
+    // }
     environment {
         AWS_ACCOUNT_ID="385685296160"
         AWS_DEFAULT_REGION="us-east-2"
