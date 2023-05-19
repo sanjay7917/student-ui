@@ -1,8 +1,8 @@
 pipeline {
     agent any
-    tools {
-        maven 'Maven'
-    }
+    // tools {
+    //     maven 'Maven'
+    // }
     // parameters { 
     //     choice(name: 'EKS_AWS_REGION', description: 'Provide AWS Region', choices: ['us-east-1', 'us-east-2', 'us-west-2', 'ap-east-1', 'ap-south-1', 'ap-northeast-2', 'ap-southeast-1', 'ap-southeast-2', 'ap-northeast-1', 'ca-central-1', 'eu-central-1', 'eu-west-1', 'eu-west-2', 'eu-west-3', 'eu-north-1', 'me-south-1', 'sa-east-1'])
     //     string(name: "EKS_CLUSTER_NAME", defaultValue: "", description: "Provide The Name Of Cluster")
@@ -22,11 +22,11 @@ pipeline {
         //         git credentialsId: 'ubuntu', url: 'https://github.com/sanjay7917/student-ui.git'
         //     }
         // }
-        stage("build-maven"){
-            steps{
-                sh 'mvn clean package' 
-            }    
-        }
+        // stage("build-maven"){
+        //     steps{
+        //         sh 'mvn clean package' 
+        //     }    
+        // }
         // stage("build-docker-image"){
         //     steps{
         //         script {  
@@ -57,8 +57,8 @@ pipeline {
                 withAWS(credentials: 'aws', region: 'us-east-2') {
                     script {
                         sh '''
-                        apt update -y
-                        apt install unzip -y && apt install curl -y
+                        sudo apt update -y
+                        sudo apt install unzip -y && apt install curl -y
                         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
                         unzip awscliv2.zip
                         ./aws/install
