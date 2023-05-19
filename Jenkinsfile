@@ -57,11 +57,8 @@ pipeline {
                 withAWS(credentials: 'aws', region: 'us-east-2') {
                     script {
                         sh '''
-                        sudo apt update -y
-                        sudo apt install unzip -y && apt install curl -y
-                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-                        unzip awscliv2.zip
-                        ./aws/install
+                        apt update -y
+                        apt install awscli -y
                         aws s3 mb s3://buck12312344 --region us-east-2
                         '''
                         // sh 'eksctl create cluster --name ${EKS_CLUSTER_NAME} --region ${EKS_AWS_REGION} --node-type ${EKS_NODE_TYPE} --nodes ${EKS_NODE_COUNT}'
