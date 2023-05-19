@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: myapp
+spec:
+ selector:
+   matchLabels:
+     app: myapp
+ template:
+   metadata:
+     labels:
+       app: myapp
+   spec:
+     containers:
+     - name: myapp
+       image: 385685296160.dkr.ecr.us-east-2.amazonaws.com/aws_k8s_image:Version_1
+       ports:
+       - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+name: tomcat-app-svc
+annotations:
+  service.beta.kubernetes.io/aws-load-balancer-type: nlb
+spec:
+type: LoadBalancer
+selector:
+  app: myapp
+ports:
+  - port: 8080
+    targetPort: 8080

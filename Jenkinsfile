@@ -17,11 +17,30 @@ pipeline {
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}"
     }
     stages {
+        stage('code-pulling') {
+            steps {
+                git credentialsId: 'ubuntu', url: 'https://github.com/sanjay7917/student-ui.git'
+            }
+        }
         // IF WE USE PIPELINE SCRIPE FROM SCM THEN WE DONT HAVE TO PULL CODE
         stage("build-maven"){
             steps{
                 sh 'mvn clean package' 
             }    
+        }
+        stage('artifact-to-s3') {
+            steps {
+                withAWS(credentials: 'aws', region: 'us-east-2') {
+                    sh'''
+                    sudo apt update -y
+                    sudo apt install awscli -y
+                    aws s3 ls
+                    aws s3 mb s3://buck12312344 --region us-east-2
+                    sudo mv /var/lib/jenkins/workspace/deploy/target/studentapp-2.2-SNAPSHOT.war /opt/studentapp-2.2-SNAPSHOT${BUILD_ID}.war
+                    aws s3 cp /opt/studentapp-2.2-SNAPSHOT${BUILD_ID}.war  s3://buck12312344/
+                    '''
+                }
+            }     
         }
         stage("build-docker-image"){
             steps{
@@ -49,8 +68,9 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws', region: 'us-east-2') {
                     script {
-                        // sh 'eksctl create cluster --name ${EKS_CLUSTER_NAME} --region ${EKS_AWS_REGION} --node-type ${EKS_NODE_TYPE} --nodes ${EKS_NODE_COUNT}'
-                        sh 'eksctl delete cluster ${EKS_CLUSTER_NAME}' //Uncomment This For Deleting Cluster And Comment Above Command
+                        sh 'eksctl create cluster --name ${EKS_CLUSTER_NAME} --region ${EKS_AWS_REGION} --node-type ${EKS_NODE_TYPE} --nodes ${EKS_NODE_COUNT}'
+                        sh 'kubectl apply -f /tmp/k8s_manifest/deploysvc.yml'
+                        // sh 'eksctl delete cluster ${EKS_CLUSTER_NAME}' //Uncomment This For Deleting Cluster And Comment Above Command
                     }   
                 }
             }
