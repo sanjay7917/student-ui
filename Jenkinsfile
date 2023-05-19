@@ -48,8 +48,8 @@ pipeline {
         stage ('cluster-create'){
             agent {
                 docker {
-                    image '${REPOSITORY_URI}:${IMAGE_TAG}'
-                    // image '385685296160.dkr.ecr.us-east-2.amazonaws.com/aws_k8s_image:Version1'
+                    // image '${REPOSITORY_URI}:${IMAGE_TAG}'
+                    image '385685296160.dkr.ecr.us-east-2.amazonaws.com/aws_k8s_image:Version1'
                     reuseNode true
                 }
             }
