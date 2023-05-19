@@ -55,7 +55,8 @@ pipeline {
             steps {
                 withAWS(credentials: 'aws', region: 'us-east-2') {
                     script {
-                        sh 'eksctl create cluster --name ${EKS_CLUSTER_NAME} --region ${EKS_AWS_REGION} --node-type ${EKS_NODE_TYPE} --nodes ${EKS_NODE_COUNT}'
+                        sh 'aws s3 ls'
+                        // sh 'eksctl create cluster --name ${EKS_CLUSTER_NAME} --region ${EKS_AWS_REGION} --node-type ${EKS_NODE_TYPE} --nodes ${EKS_NODE_COUNT}'
                         // sh 'eksctl delete cluster <Cluster_Name>' //Uncomment This For Deleting Cluster And Comment Above Command
                     }   
                 }
