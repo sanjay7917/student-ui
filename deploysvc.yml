@@ -19,7 +19,7 @@ spec:
         - name: tomcat-app
           image: 385685296160.dkr.ecr.us-east-2.amazonaws.com/aws_k8s_image:Version_1
           ports:
-            - containerPort: 8000
+            - containerPort: 8080
 
 ---
 apiVersion: v1
@@ -31,5 +31,5 @@ spec:
   selector:
     app: myapp
   ports:
-    - port: 8000
-      targetPort: 8000
+    - port: 8080
+      targetPort: 8080
