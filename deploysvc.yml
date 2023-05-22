@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: tomcat-app
-          image: sanjay7917/tomcat
+          image: 385685296160.dkr.ecr.us-east-2.amazonaws.com/aws_k8s_image:Version_1
           ports:
             - containerPort: 8080
 

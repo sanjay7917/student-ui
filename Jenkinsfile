@@ -19,29 +19,29 @@ pipeline {
     stages {
         stage('code-pulling') {
             steps {
-                slackSend channel: 'prod', message: 'Job Started'
-                git branch: 'main', credentialsId: 'ubuntu', url: 'https://github.com/sanjay7917/springboot-app.git'
-                slackSend channel: 'prod', message: 'Code Pulled Successfully'
+                slackSend channel: 'deployment', message: 'Job Started'
+                git credentialsId: 'ubuntu', url: 'https://github.com/sanjay7917/student-ui.git'
+                slackSend channel: 'deployment', message: 'Code Pulled Successfully'
             }
         }
         stage("build-maven"){
             steps{
-                slackSend channel: 'prod', message: 'Building Artifact'
+                slackSend channel: 'deployment', message: 'Building Artifact'
                 sh 'mvn clean package'
-                slackSend channel: 'prod', message: 'Artifact Build Successfully'
+                slackSend channel: 'deployment', message: 'Artifact Build Successfully'
             }    
         }
         stage('sonarqube-integration'){
             steps{
-                withSonarQubeEnv('sonarqube-9.9') { 
+                withSonarQubeEnv('sonarqube-9.9') {
                     sh "mvn sonar:sonar"
                 }
-                slackSend channel: 'prod', message: 'Code Quality Check Report Transfered On SonarQube Server'
+                slackSend channel: 'deployment', message: 'Code Quality Check Report Transfered On SonarQube Server'
             }
         }
         stage('artifact-to-s3') {
             steps {
-                slackSend channel: 'prod', message: 'Sending Artifact On AWS S3 Bucket'
+                slackSend channel: 'deployment', message: 'Sending Artifact On AWS S3 Bucket'
                 withAWS(credentials: 'aws', region: 'us-east-2') {
                     sh'''
                     sudo apt update -y
@@ -53,58 +53,58 @@ pipeline {
                     sudo rm -rvf /tmp/studentapp-2.2-SNAPSHOT${BUILD_ID}.war
                     '''
                 }
-                slackSend channel: 'prod', message: 'Artifact Stored On AWS S3 Bucket'
+                slackSend channel: 'deployment', message: 'Artifact Stored On AWS S3 Bucket'
             }     
         }
         stage("pull-artifact"){
             steps{
-                slackSend channel: 'prod', message: 'Pulling Artifact From AWS S3 Bucket'
+                slackSend channel: 'deployment', message: 'Pulling Artifact From AWS S3 Bucket'
                 withAWS(credentials: 'aws', region: 'us-east-2') {
                     script {
                         sh 'aws s3 cp s3://buck12312344/studentapp-2.2-SNAPSHOT${BUILD_ID}.war .'
                         sh 'mv studentapp-2.2-SNAPSHOT${BUILD_ID}.war student.war'
                     }
                 }
-                slackSend channel: 'prod', message: 'Artifact Pulled Successfully'
+                slackSend channel: 'deployment', message: 'Artifact Pulled Successfully'
             }    
         }
         stage("build-docker-image"){
             steps{
-                slackSend channel: 'prod', message: 'Building Docker Image From Dockerfile'
+                slackSend channel: 'deployment', message: 'Building Docker Image From Dockerfile'
                 withAWS(credentials: 'aws', region: 'us-east-2') {
                     script {
                         sh 'docker build -t ${IMAGE_REPO_NAME} .'
                     }
                 }
-                slackSend channel: 'prod', message: 'Docker Image Build Successfully'
+                slackSend channel: 'deployment', message: 'Docker Image Build Successfully'
             }    
         }
         stage("push-docker-image-to-ecr"){
             steps{
-                slackSend channel: 'prod', message: 'Sending Docker Image To AWS ECR'
+                slackSend channel: 'deployment', message: 'Sending Docker Image To AWS ECR'
                 script {
                     sh "docker tag ${IMAGE_REPO_NAME} ${REPOSITORY_URI}:${IMAGE_TAG}"
                     sh "aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
                     sh "docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${IMAGE_REPO_NAME}:${IMAGE_TAG}"
                 }
-                slackSend channel: 'prod', message: 'Docker Image Pushed On AWS ECR'
+                slackSend channel: 'deployment', message: 'Docker Image Pushed On AWS ECR'
             }
         }
         stage('send-k8s-manifest') {
             steps {
-                slackSend channel: 'prod', message: 'Sending K8S Deployment Manifest To EKS Cluster Server'
+                slackSend channel: 'deployment', message: 'Sending K8S Deployment Manifest To EKS Cluster Server'
                 sshagent(['ubuntu']) {
-                    sh "scp -o StrictHostKeyChecking=no deploysvc.yml ubuntu@18.218.137.135:/home/ubuntu"
+                    sh "scp -o StrictHostKeyChecking=no deploysvc.yml ubuntu@3.139.84.3:/home/ubuntu"
                 }
-                slackSend channel: 'prod', message: 'K8S Deployment Manifest Transfered Successfully'
+                slackSend channel: 'deployment', message: 'K8S Deployment Manifest Transfered Successfully'
             }
         }
         stage('k8s-cluster-creation-and-deploy') {
             steps {
-                slackSend channel: 'prod', message: 'Creating AWS EKS Cluster, Nodegroup and Deploying K8S Manifest On Slave Nodes'
+                slackSend channel: 'deployment', message: 'Creating AWS EKS Cluster, Nodegroup and Deploying K8S Manifest On Slave Nodes'
                 withCredentials([sshUserPrivateKey(credentialsId: 'ubuntu', keyFileVariable: 'id_rsa', usernameVariable: 'eks')]) {
                     sh'''
-                    sudo ssh -i ${id_rsa} -T -o StrictHostKeyChecking=no ubuntu@18.218.137.135<<EOF
+                    sudo ssh -i ${id_rsa} -T -o StrictHostKeyChecking=no ubuntu@3.139.84.3<<EOF
                     pwd
                     ls
                     kubectl version --short --client
@@ -137,7 +137,7 @@ pipeline {
                     kubectl apply -f deploysvc.yml
                     '''
                 }
-                slackSend channel: 'prod', message: 'Cluster And Nodegroup Created Successfully, And Spring Boot Application Deployed On K8S Cluster'
+                slackSend channel: 'deployment', message: 'Cluster And Nodegroup Created Successfully, And Spring Boot Application Deployed On K8S Cluster'
             }
         }
     }
@@ -146,10 +146,12 @@ pipeline {
             echo "Production Enviroment EKS Spring Boot Application Deployment Pipeline"
         }
         success{
-            slackSend channel: 'prod', message: 'Pipeline Executed Successfully'
+            slackSend channel: 'deployment', message: 'Pipeline Executed Successfully'
         }
         failure{
-            slackSend channel: 'prod', message: 'Pipeline Failed to Execute'
+            slackSend channel: 'deployment', message: 'Pipeline Failed to Execute'
         }
     }
 }
+
+
