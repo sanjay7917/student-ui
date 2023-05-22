@@ -3,12 +3,6 @@ pipeline {
     tools {
         maven 'Maven'
     }
-    parameters { 
-        choice(name: 'EKS_AWS_REGION', description: 'Provide AWS Region', choices: ['us-east-1', 'us-east-2'])
-        string(name: "EKS_CLUSTER_NAME", defaultValue: "", description: "Provide The Name Of Cluster")
-        choice(name: 'EKS_NODE_TYPE', description: 'Provide Node Type', choices: ['t2.medium', 't2.micro'])
-        choice(name: 'EKS_NODE_COUNT', description: 'Provide The Node Count', choices: ['1', '2'])
-    }
     environment {
         AWS_ACCOUNT_ID="385685296160"
         AWS_DEFAULT_REGION="us-east-2"
@@ -48,7 +42,7 @@ pipeline {
                     sudo apt install awscli -y
                     aws s3 ls
                     aws s3 mb s3://buck12312344 --region us-east-2
-                    sudo mv /var/lib/jenkins/workspace/test/target/studentapp-2.2-SNAPSHOT.war /tmp/studentapp-2.2-SNAPSHOT${BUILD_ID}.war
+                    sudo mv /var/lib/jenkins/workspace/prod-deployment-pipeline/target/studentapp-2.2-SNAPSHOT.war /tmp/studentapp-2.2-SNAPSHOT${BUILD_ID}.war
                     aws s3 cp /tmp/studentapp-2.2-SNAPSHOT${BUILD_ID}.war  s3://buck12312344/
                     sudo rm -rvf /tmp/studentapp-2.2-SNAPSHOT${BUILD_ID}.war
                     '''
